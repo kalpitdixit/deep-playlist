@@ -8,9 +8,32 @@ class Vocab(object):
     self.index_to_word = {}
     self.word_freq = defaultdict(int)
     self.total_words = 0
-    self.unknown = '<unk>'
-    self.add_word(self.unknown, count=0)
+    
+    print 'Not adding unknown to vocab'
+    #self.unknown = '<unk>'
+    #self.add_word(self.unknown, count=0)
 
+  def get_wv(self, fname):
+    with open(fname, 'r') as f:
+      wv = np.zeros((self.total_words, len(f.readline().strip().split(' '))-1))
+
+    c = 0
+    d = 0
+    with open(fname, 'r') as f:
+      for line in f:
+        d += 1
+        line = line.strip().split(' ')
+        try:
+          _ = self.word_to_index[line[0]]
+        except KeyError:
+          continue
+        wv[self.word_to_index[line[0]],:] = [float(x) for x in line[1:]]
+        c += 1     
+        if c==self.total_words:
+          break
+    print 'Found all', c, 'word vectors in the first', d, 'words.'
+    return wv    
+ 
   def add_word(self, word, count=1):
     if word not in self.word_to_index:
       index = len(self.word_to_index)
